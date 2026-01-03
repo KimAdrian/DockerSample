@@ -69,6 +69,25 @@ func (c *MongoDB) userSaveHandler() http.HandlerFunc {
 		if err != nil {
 			log.Fatalln("Unable to parse template file: ", err)
 		}
+
+		user := User{
+			Name:      r.FormValue("name"),
+			Email:     r.FormValue("email"),
+			Interests: r.FormValue("interests"),
+		}
+
+		err = tmpl.Execute(w, struct{ Success bool }{true})
+		if err != nil {
+			http.Error(w, err.Error(), http.StatusInternalServerError)
+			log.Fatal(err)
+		}
+
+		result, err := saveToCollection(coll, &user)
+		if err != nil {
+			http.Error(w, err.Error(), http.StatusInternalServerError)
+			log.Fatal(err)
+		}
+		log.Println(result.UpsertedCount)
 	}
 
 }
