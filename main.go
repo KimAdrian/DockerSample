@@ -71,20 +71,19 @@ func (c *MongoDB) userSaveHandler() http.HandlerFunc {
 		}
 
 		user := User{
+			UserID:    1,
 			Name:      r.FormValue("name"),
 			Email:     r.FormValue("email"),
 			Interests: r.FormValue("interests"),
 		}
-
-		err = tmpl.Execute(w, struct{ Success bool }{true})
+		log.Println(user)
+		err = tmpl.Execute(w, nil)
 		if err != nil {
-			http.Error(w, err.Error(), http.StatusInternalServerError)
 			log.Fatal(err)
 		}
 
 		result, err := saveToCollection(coll, &user)
 		if err != nil {
-			http.Error(w, err.Error(), http.StatusInternalServerError)
 			log.Fatal(err)
 		}
 		log.Println(result.UpsertedCount)
@@ -102,7 +101,7 @@ func (c *MongoDB) userFetchHandler() http.HandlerFunc {
 
 		fetchedUser, err := fetchFromCollection(coll)
 		if err != nil {
-			log.Fatal(err)
+			log.Println(err)
 		}
 
 		err = tmpl.Execute(w, fetchedUser)
@@ -116,8 +115,14 @@ func (c *MongoDB) userFetchHandler() http.HandlerFunc {
 
 func saveToCollection(coll *mongo.Collection, userDetails *User) (*mongo.UpdateResult, error) {
 	filter := bson.D{{Key: "user_id", Value: 1}}
+	update := bson.D{{Key: "$set", Value: bson.D{
+		{Key: "user_id", Value: userDetails.UserID},
+		{Key: "name", Value: userDetails.Name},
+		{Key: "email", Value: userDetails.Email},
+		{Key: "interests", Value: userDetails.Interests},
+	}}}
 	opts := options.UpdateOne().SetUpsert(true)
-	result, err := coll.UpdateOne(context.TODO(), filter, userDetails, opts)
+	result, err := coll.UpdateOne(context.TODO(), filter, update, opts)
 	if err != nil {
 		return nil, err
 	}
