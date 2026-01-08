@@ -25,21 +25,18 @@
         </div>
     </div>
     <div style="margin-top: 20px;" id='container-edit'>
-        {{if .Success}}
-        <h1>Saved!</h1>
-        {{else}}
         <form action="/" method="post">
 
             <label>Name:</label><br />
-            <input type="text" id="name" /><br />
+            <input type="text" name="name" id="name">
+            <br />
             <label>Email:</label><br />
-            <input type="text" name="email"><br />
+            <input type="email" name="email"> <br />
             <label>Interests:</label><br />
             <textarea name="interests"></textarea><br />
             <input type="submit">
 
         </form>
-        {{end}}
     </div>
 </body>
 
